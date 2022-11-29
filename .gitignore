@@ -3,3 +3,4 @@ individu_reg.*
 .Rhistory
 .RData
 .Ruserdata
+*.yaml
