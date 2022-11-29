@@ -1,3 +1,7 @@
+
+
+# Packages ------------
+
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("stringr")) install.packages("stringr")
 if (!require("dplyr")) install.packages("dplyr")
@@ -6,28 +10,25 @@ if (!require("tidyverse")) install.packages("tidyverse")
 
 library(tidyverse)
 library(dplyr)
+library(MASS)
+
+
+# Import des données  ------------
 
 # j'importe les données avec read_csv2 parce que c'est un csv avec des ;
 # et que read_csv attend comme separateur des ,
-df <- readr::read_csv2(
-  "individu_reg.csv",
-  col_names = c(
-    "region", "aemm", "aged", "anai", "catl", "cs1", "cs2", "cs3",
-    "couple", "na38", "naf08", "pnai12", "sexe", "surf", "tp",
-    "trans", "ur"
-  )
-)
+df <- readr::read_csv2("individu_reg.csv",
+                       col_select = c("region", "aemm", "aged", "anai", "catl", "cs1", "cs2", "cs3",
+                                      "couple", "na38", "naf08", "pnai12", "sexe", "surf", "tp",
+                                      "trans", "ur")
+                       )
 
-# y a un truc qui va pas avec l'import, je corrige
-colnames(df) <- df[1, ]
-df <- df[2:nrow(df), ]
 
+## Sous-ensemble =====
 df2 <- df %>%
-  select(c(
-    "region", "dept", "aemm", "aged", "anai", "catl", "cs1", "cs2",
-    "cs3", "couple", "na38", "naf08", "pnai12", "sexe", "surf", "tp",
-    "trans", "ur"
-  ))
+  dplyr::select(c("region", "aemm", "aged", "anai", "catl", "cs1", "cs2", "cs3",
+                  "couple", "na38", "naf08", "pnai12", "sexe", "surf", "tp", "trans",
+                  "ur"))
 print(df2, 20)
 
 
@@ -150,8 +151,9 @@ fonction_de_stat_agregee(df2 %>%
 
 api_pwd <- "trotskitueleski$1917"
 
-# modelisation
-library(MASS)
+
+# Modelisation  ------------
+
 df3 <- df2 %>%
   dplyr::select(surf, cs1, ur, couple, aged) %>%
   filter(surf != "Z")
@@ -160,3 +162,4 @@ df3[, "cs1"] <- factor(df3$cs1)
 df3 %>%
   filter(couple == "2" & aged > 40 & aged < 60)
 polr(surf ~ cs1 + factor(ur), df3)
+
