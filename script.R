@@ -28,14 +28,15 @@ api_token <- yaml::read_yaml("R/secrets.yaml")$JETON_API
 
 # j'importe les données avec read_csv2 parce que c'est un csv avec des ;
 # et que read_csv attend comme separateur des ,
-df <- readr::read_csv2(
-  "individu_reg.csv",
+df <- arrow::read_parquet(
+  "individu_reg.parquet",
   col_select  = c(
     "region", "aemm", "aged", "anai", "catl", "cs1", "cs2", "cs3",
     "couple", "na38", "naf08", "pnai12", "sexe", "surf", "tp",
     "trans", "ur"
   )
 )
+
 
 # RETRAITEMENT DES DONNEES -------------------------
 
@@ -92,6 +93,24 @@ df %>%
   ), alpha = 0.2) +
   geom_histogram() # position = "dodge") + scale_fill_viridis_d()
 
+
+stats_age <- df %>%
+  group_by(decennie = decennie_a_partir_annee(age)) %>%
+  summarise(n())
+
+table_age <- gt::gt(stats_age) %>%
+  gt::tab_header(
+    title = "Distribution des âges dans notre population"
+  ) %>%
+  gt::fmt_number(
+    columns = `n()`,
+    sep_mark = " ",
+    decimals = 0
+  ) %>%
+  gt::cols_label(
+    decennie = "Tranche d'âge",
+    `n()` = "Population"
+  )
 
 
 ## Part d'homme dans chaque cohorte ===========
